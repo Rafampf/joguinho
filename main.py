@@ -178,7 +178,7 @@ class JogoPong(Screen):
         player1.size = player2.size = self.width / 3, self.height / 40
         Clock.unschedule(game.update)
         game.ids.jogador.center_x = game.center_x
-        game.ids.jogador.center_y = game.center_y * 0.8
+        game.ids.jogador.center_y = game.center_y * 0.6
         ball.center = self.center
         ball2.center = self.center
         ball2.velocity = (0,0)
@@ -197,7 +197,7 @@ class Player(Image):
         global score_pong
         if self.collide_widget(ball):
             score_pong = str(self.parent.ids.player_right.score)
-            print(self.parent.ids.player_right.score)
+            print(self.parent.ids.pong_ball.velocity)
             sm.current = 'botao'
     pass
 
@@ -211,7 +211,9 @@ class PongPaddle(Image):
             vel = Vector(vx, -1 * vy)
             if -self.parent.height/75< vel.y < self.parent.height/75:
                 vel.y = vel.y*1.05
-            ball.velocity = vel.x + randint(-3, 3) + offset*2, vel.y
+            if -self.parent.width/33> vel.x or vel.x > self.parent.width/33:
+                vel.x = vel.x * 0.8
+            ball.velocity = vel.x + (randint(-3, 3) + offset*2) * larguratela/300, vel.y
 
 
 
@@ -237,16 +239,18 @@ class PongGame(Widget):
     i = 0
 
     def serve_ball(self, bola=salvador, vel=(0, randint(30, 50)/10)):
+        global tamanhotela
         bola.center = self.center
-        bola.velocity = (0, randint(30, 50) / 10)
+        bola.velocity = (0, randint(30, 50) * tamanhotela / 6340)
         if n_bolas == 1:
+            print(tamanhotela)
             self.add_widget(self.ball)
-            self.ball.velocity = (0, randint(30, 50)/10)
+            self.ball.velocity = (0, randint(30, 50) * tamanhotela / 6340)
 
         elif n_bolas == 2:
             self.add_widget(self.ball2)
             self.ball2.center = self.center
-            self.ball2.velocity = (0, randint(30, 50)/10)
+            self.ball2.velocity = (0, randint(30, 50) * tamanhotela / 6340)
 
         else:
             bola.size = (bola.width*1.1, bola.height*1.1)
@@ -340,7 +344,11 @@ class Botao(Screen):
             self.ids.pongpont.text = "Pontuação:"
             self.ids.play.text = "Play again"
         self.ids.score.text = score_pong
-    pass
+    def playar(self):
+        global tamanhotela, larguratela
+        tamanhotela = self.height
+        larguratela = self.width
+        sm.current = 'pong'
 
 sm.add_widget(Botao(name= 'botao'))
 sm.add_widget(JogoPong(name= 'pong'))
