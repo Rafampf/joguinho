@@ -1,0 +1,199 @@
+#:import ScrollEffect  kivy.effects.scroll.ScrollEffect
+
+<Label>:
+    halign: 'center'
+
+
+
+<Image>:
+    allow_stretch: True
+    keep_ratio: False
+
+<GameOver>:
+    FloatLayout:
+        Fundo:
+        Label:
+            text: "Game Over"
+            font_size: root.height/14
+            size_hint: 1, 0.1
+            pos_hint: {"top": 0.9}
+        Label:
+            id: pontuacao
+            text: root.pont + str(root.us)[:-2]
+            font_size: root.height/20
+            size_hint: 1, 0.1
+            pos_hint: {"top": 0.8}
+        Image:
+            source: "Hgame2.png"
+            keep_ratio: True
+            size_hint: 0.4, 0.4
+            pos_hint: {"top": 0.8, "center_x": 0.5}
+        Button:
+            pos_hint: {"top": 0.45, "center_x": 0.5}
+            font_size: self.height/3
+            text: "Tentar Novamente"
+            background_normal: "branco.png"
+            background_color: 0.505, 0.102, 0.207, 1
+            size_hint: 0.8, 0.1
+            on_release: app.root.current = "game"
+        Button:
+            pos_hint: {"top": 0.3, "center_x": 0.5}
+            font_size: self.height/3
+            background_normal: "branco.png"
+            background_color: 0.505, 0.102, 0.207, 1
+            text: "Voltar"
+            size_hint: 0.8, 0.1
+            on_release: app.root.current = "m_lvl"
+
+<Obstaculo>:
+    size_hint: None, None
+    width: "50dp"
+
+<Game>:
+    canvas:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+            source: "sangue.png"
+    FloatLayout:
+        Label:
+            id: pontos
+            text: "Score: " + str(root.score)[:-2]
+            font_size: root.height/12
+            bold: True
+            size_hint_y: None
+            height: self.font_size
+            y: root.height*0.9
+        Player:
+            id: player
+            size_hint: None, None
+            size: root.height/15, root.height/15
+            x: root.width/20
+            y: root.height/2
+
+<PongBall>:
+    source: "bola.png"
+    size: 25, 25
+
+<PongPaddle>:
+    source: 'branco.png'
+
+
+<PongGame>:
+    ball: pong_ball
+    player1: player_left
+    player2: player_right
+    jogador: jogador
+    ball2: pong_ball2
+    obstaculo1: obs1
+    obstaculo2: obs2
+    pong_ball2: pong_ball2.__self__
+    pong_ball: pong_ball.__self__
+    player_left: player_left.__self__
+    player_right: player_right.__self__
+
+    Image:
+        id: obs1
+        size: root.width/10, root.width/10
+        pos: root.center_x - root.width/20, root.center_y - root.width/20
+        source: 'bola.png'
+
+    Image:
+        id: obs2
+        size: root.width, root.width/30
+        pos: 0, root.center_y - root.width/60
+        source: 'branco.png'
+
+
+    Label:
+        font_size: 70
+        center_x: root.width * 0.25
+        center_y: root.height * 0.85
+        text: str(root.player1.score)
+
+    Label:
+        font_size: 70
+        center_x: root.width * 0.75
+        center_y: root.height * 0.85
+        text: str(root.player2.score)
+
+    PongBall:
+        id: pong_ball
+        center: root.center
+
+    PongBall:
+        id: pong_ball2
+
+
+
+    PongPaddle:
+        id: player_left
+        center_x: root.center_x
+        y: root.height - self.height
+
+    PongPaddle:
+        id: player_right
+        center_x: root.center_x
+        y: 0
+
+    Player:
+        id: jogador
+        size: 40, 40
+        center_x: root.center_x
+        center_y: root.center_y*0.8
+
+<JogoPong>:
+    PongGame:
+
+<Botao>
+    Widget:
+        canvas:
+            Ellipse:
+                size: root.width/10, root.width/10
+                pos: root.center_x - root.width/20, root.center_y - root.width/20
+
+    Widget:
+        canvas:
+            Rectangle:
+                size: root.width, root.width/30
+                pos: 0, root.center_y - root.width/60
+
+
+    Widget:
+        canvas:
+            Rectangle:
+                size: root.width/3, root.height/40
+                pos: root.center_x - root.width/6, 0
+
+    Widget:
+        canvas:
+            Rectangle:
+                size: root.width/3, root.height/40
+                pos: root.center_x - root.width/6, root.height - root.height/40
+
+    Label:
+        id: pongpont
+        text: root.inicial
+        font_size: root.height/18
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.7}
+    Label:
+        id: score
+        text: ""
+        font_size: root.height/10
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.6}
+    Button:
+        id: play
+        text: "Start game"
+        color: 0,0,0,1
+        bold: True
+        background_normal: "branco.png"
+        background_down: "branco.png"
+        font_size: root.height/18
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.4}
+        on_release: app.root.current = 'pong'
+
