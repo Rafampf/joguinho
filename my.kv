@@ -197,3 +197,114 @@
         pos_hint: {"center_x": 0.5, "center_y": 0.4}
         on_release: root.playar()
 
+    Button:
+        text: "level 2"
+        color: 0,0,0,1
+        background_color: 1,1,1,1
+        background_normal: "branco.png"
+        background_down: "branco.png"
+        font_size: root.height/30
+        size_hint: 0.3, 0.05
+        pos_hint: {"center_x": 0.8, "center_y": 0.9}
+        on_release: app.root.current = 'botao2'
+
+<Botao2>
+
+    Image:
+        id: chessboard
+        keep_ratio: True
+        source: 'chessboard.png'
+    Label:
+        id: pongpont
+        text: root.inicial
+        color: 0,0,0,1
+        font_size: root.height/18
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.7}
+    Label:
+        id: score
+        text: ""
+        color: 0,0,0,1
+        font_size: root.height/10
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.6}
+    Button:
+        id: play
+        text: "Start game"
+        color: 0,0,0,1
+        bold: True
+        background_color: 1,1,1,0.2
+        background_normal: "branco.png"
+        background_down: "branco.png"
+        font_size: root.height/18
+        size_hint: 0.7, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.4}
+        on_release: root.playar()
+    Button:
+        text: "level 1"
+        color: 0,0,0,1
+        background_color: 1,1,1,1
+        background_normal: "branco.png"
+        background_down: "branco.png"
+        font_size: root.height/30
+        size_hint: 0.3, 0.05
+        pos_hint: {"center_x": 0.2, "center_y": 0.9}
+        on_release: app.root.current = 'botao'
+
+<Chess>
+    ChessGame:
+    Image:
+        id: chessboard
+        keep_ratio: True
+        source: 'chessboard.png'
+    Player:
+        id: player
+        size_hint: None, None
+        size: root.width/6, root.width/6
+        x: root.width/3
+    Rook:
+        id: rook1
+        size_hint: None, None
+        size: root.width/6, root.width/6
+    Rook:
+        id: rook2
+        size_hint: None, None
+        size: root.width/6, root.width/6
+
+    Bishop:
+        id: bishop1
+        size_hint: None, None
+        size: root.width/6, root.width/6
+
+    Bishop:
+        id: bishop2
+        size_hint: None, None
+        size: root.width/6, root.width/6
+
+    Knight:
+        id: knight1
+        size_hint: None, None
+        size: root.width/6, root.width/6
+
+    Knight:
+        id: knight2
+        size_hint: None, None
+        size: root.width/6, root.width/6
+
+    Label:
+        id: Lscore
+        text: 'Score: ' + str(root.score)
+        font_size: root.height/12
+        size_hint: 1, 0.1
+
+    Label:
+        id: Lhighscore
+        text: 'Highscore: 0'
+        font_size: root.height/16
+        size_hint: 1, 0.1
+
+<Rook>:
+    source: 'torre.png'
+
+<Bishop>:
+    source: 'bispo.png'
