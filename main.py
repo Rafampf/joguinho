@@ -9,6 +9,7 @@ from kivy.animation import Animation
 from random import sample
 from random import random
 from random import randint
+from random import choice
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
@@ -19,7 +20,7 @@ from kivy.properties import (
 )
 from kivy.vector import Vector
 from kivy.clock import Clock
-
+from math import sqrt
 
 Config.set('graphics', 'width', '300')
 Config.set('graphics', 'height', '634')
@@ -197,15 +198,30 @@ class Player(Image):
         global score_pong
         if self.collide_widget(ball):
             score_pong = str(self.parent.ids.player_right.score)
-            print(self.parent.ids.pong_ball.velocity)
             sm.current = 'botao'
-    pass
+
+    def die_chess(self, ball):
+        if self.pos == ball.pos:
+            print('perdeu')
+            if int(self.parent.ids.Lhighscore.text[11:]) < self.parent.score:
+                self.parent.ids.Lhighscore.text = 'Highscore: ' + str(self.parent.score)
+            self.parent.score = 0
+
+
 
 class PongPaddle(Image):
     score = NumericProperty(0)
+    ativo = True
+    ultima_bola = None
 
     def bounce_ball(self, ball):
-        if self.collide_widget(ball):
+        if self.collide_widget(ball) and self.ultima_bola != ball:
+            self.ativo = True
+        if self.collide_widget(ball) and self.ativo:
+            if self.ultima_bola == ball:
+                self.ativo = False
+                Clock.schedule_once(self.backOn, 0.5)
+            self.ultima_bola = ball
             vx, vy = ball.velocity
             offset = (ball.center_x - self.center_x) / (self.width / 2)
             vel = Vector(vx, -1 * vy)
@@ -214,6 +230,9 @@ class PongPaddle(Image):
             if -self.parent.width/33> vel.x or vel.x > self.parent.width/33:
                 vel.x = vel.x * 0.8
             ball.velocity = vel.x + (randint(-3, 3) + offset*2) * larguratela/300, vel.y
+
+    def backOn(self, time=0):
+        self.ativo = True
 
 
 
@@ -325,16 +344,24 @@ class PongGame(Widget):
 
 
     def on_touch_move(self, touch):
-        self.jogador.center_x = touch.x
-        self.jogador.center_y = touch.y
-        if touch.x < self.player2.width/2:
-            self.player2.x = self.width - self.player2.width
+        xL = self.width/3.5
+        xA = self.jogador.center_x
+        xB = touch.x
+        distX = xA - xB
+        yL = self.height/8
+        yA = self.jogador.center_y
+        yB = touch.y
+        distY = yA - yB
+        if touch.y < self.height/2 and -yL < distY < yL and -xL < distX < xL:
+            self.jogador.center = touch.pos
+            if touch.x < self.player2.width/2:
+                self.player2.x = self.width - self.player2.width
 
-        elif touch.x > self.width - self.player2.width/2:
-            self.player2.x = 0
+            elif touch.x > self.width - self.player2.width/2:
+                self.player2.x = 0
 
-        else:
-            self.player2.center_x = self.width - touch.x
+            else:
+                self.player2.center_x = self.width - touch.x
 
 
 class Botao(Screen):
@@ -350,8 +377,309 @@ class Botao(Screen):
         larguratela = self.width
         sm.current = 'pong'
 
-sm.add_widget(Botao(name= 'botao'))
-sm.add_widget(JogoPong(name= 'pong'))
+class Botao2(Screen):
+    pass
+
+class Chess(Screen):
+    score = NumericProperty(0)
+    def on_pre_enter(self, *args):
+        h = self.height/2
+        w = self.width*1/6
+        game = self.children[-1]
+        game.jogador = self.ids.player
+        game.r1 = self.ids.rook1
+        game.r2 = self.ids.rook2
+        game.b1 = self.ids.bishop1
+        game.b2 = self.ids.bishop2
+        game.n1 = self.ids.knight1
+        game.n2 = self.ids.knight2
+        Clock.schedule_interval(game.update, 1.0 / 60.0)
+        self.ids.player.y= h - w*3
+        self.casas = game.casas = {
+            "a1": [0*w, h - 4*w], "a2": [0*w, h - 3*w], "a3": [0*w, h - 2*w], "a4": [0*w, h - w],
+            "a5": [0*w, h], "a6": [0*w, h + w], "a7": [0*w, h + 2*w], "a8": [0*w, h + 3*w],
+            "b1": [1*w, h - 4*w], "b2": [1*w, h - 3*w], "b3": [1*w, h - 2*w], "b4": [1*w, h - w],
+            "b5": [1*w, h], "b6": [1*w, h + w], "b7": [1*w, h + 2*w], "b8": [1*w, h + 3*w],
+            "c1": [2*w, h - 4*w], "c2": [2*w, h - 3*w], "c3": [2*w, h - 2*w], "c4": [2*w, h - w],
+            "c5": [2*w, h], "c6": [2*w, h + w], "c7": [2*w, h + 2*w], "c8": [2*w, h + 3*w],
+            "d1": [3*w, h - 4*w], "d2": [3*w, h - 3*w], "d3": [3*w, h - 2*w], "d4": [3*w, h - w],
+            "d5": [3*w, h], "d6": [3*w, h + w], "d7": [3*w, h + 2*w], "d8": [3*w, h + 3*w],
+            "e1": [4*w, h - 4*w], "e2": [4*w, h - 3*w], "e3": [4*w, h - 2*w], "e4": [4*w, h - w],
+            "e5": [4*w, h], "e6": [4*w, h + w], "e7": [4*w, h + 2*w], "e8": [4*w, h + 3*w],
+            "f1": [5*w, h - 4*w], "f2": [5*w, h - 3*w], "f3": [5*w, h - 2*w], "f4": [5*w, h - w],
+            "f5": [5*w, h], "f6": [5*w, h + w], "f7": [5*w, h + 2*w], "f8": [5*w, h + 3*w],
+        }
+        self.ids.player.pos = game.casas['c1']
+        self.ids.rook1.pos = game.casas['a8']
+        self.ids.rook2.pos = game.casas['f8']
+        self.ids.bishop1.pos = game.casas['c8']
+        self.ids.bishop2.pos = game.casas['d8']
+        self.ids.knight1.pos = game.casas['b8']
+        self.ids.knight2.pos = game.casas['e8']
+        self.ids.Lscore.y = h + 4*w
+        self.ids.Lhighscore.top = h -5 * w
+
+class ChessGame(Widget):
+    i = 0
+    i1 = 0
+    i2 = 0
+    slow = 1
+    k1 = 120
+    k2 = 240
+    def update(self, dt):
+        self.jogador.die_chess(self.r1)
+        self.jogador.die_chess(self.r2)
+        self.jogador.die_chess(self.b1)
+        self.jogador.die_chess(self.b2)
+        self.jogador.die_chess(self.n1)
+        self.jogador.die_chess(self.n2)
+        self.i += 1
+        self.i1 += 1
+        self.i2 += 1
+        if self.i % 45 ==0:
+            self.parent.score += 1
+        if self.i1 % self.k1 == 0:
+            self.i1 = 0
+            self.n1.move()
+            self.r1.move(1)
+            self.b1.move(1)
+            if self.k1 >= 90:
+                self.k1 -= 1
+            if self.slow < 2:
+                self.slow = 1.005 * self.slow
+        if self.i2 % self.k2 == 0:
+            self.i2 = 0
+            self.n2.move()
+            self.r2.move(2)
+            self.b2.move(2)
+            if self.k2 > 130:
+                self.k2 -= 4
+
+    def move(self, piece, direction='up', times=1, d=1):
+        d = d/self.slow
+        if direction == 'up':
+            anim = Animation(y=piece.y + 1 / 6 * self.width*times,duration=d)
+            anim.start(piece)
+        elif direction == 'down':
+            anim = Animation(y=piece.y - 1 / 6 * self.width*times,duration=d)
+            anim.start(piece)
+        elif direction == 'right':
+            anim = Animation(x=piece.x + 1 / 6 * self.width*times,duration=d)
+            anim.start(piece)
+        elif direction == 'left':
+            anim = Animation(x=piece.x - 1 / 6 * self.width*times,duration=d)
+            anim.start(piece)
+
+    def on_touch_move(self, touch):
+        xL = self.width / 3.5
+        xA = self.jogador.center_x
+        xB = touch.x
+        distX = xA - xB
+        yL = self.height / 8
+        yA = self.jogador.center_y
+        yB = touch.y
+        distY = yA - yB
+        if -yL < distY < yL and -xL < distX < xL:
+            self.jogador.x = self.qual_casax(touch)
+            self.jogador.y = self.qual_casay(touch)
+
+    def qual_casax(self, touch):
+        w = self.width*1/6
+        xs = [0, w, 2*w, 3*w, 4*w, 5*w, 6*w]
+        return min(xs, key=lambda x: abs(x - (touch.x - w/2)))
+    def qual_casay(self, touch):
+        h = self.height/2
+        w = self.width*1/6
+        ys = [h - 4*w, h - 3*w, h - 2*w, h - w, h, h + w, h + 2*w, h + 3*w]
+        return min(ys, key=lambda x: abs(x - (touch.y - w/2)))
+
+class Bishop(Image):
+    def move(self, bishop=1):
+        game = self.parent.children[-1]
+        jogador = self.parent.ids.player
+        distx = self.center_x - jogador.center_x
+        disty = self.center_y - jogador.center_y
+        if bishop == 1:
+            # esquerda baixo
+            if 0 <= disty <= distx and distx >= 0:
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'left', int(abs(disty)/50), d)
+                game.move(self, 'down', int(abs(disty) / 50), d)
+            elif disty >= 0 and 0 <= distx <= disty:
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'left', int(abs(distx)/50), d)
+                game.move(self, 'down', int(abs(distx) / 50), d)
+            # esquerda cima
+            elif disty <= 0 <= distx and int(abs(distx)) >= int(abs(disty)):
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'left', int(abs(disty)/50), d)
+                game.move(self, 'up', int(abs(disty)/50), d)
+            elif disty <= 0 <= distx and int(abs(distx)) < int(abs(disty)):
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'left', int(abs(distx)/50), d)
+                game.move(self, 'up', int(abs(distx)/50), d)
+            # direita cima
+            elif distx <= 0 and 0 >= disty >= distx:
+                d = randint(8, 10) * int(abs(disty) / 50) / 80
+                game.move(self, 'right', int(abs(disty)/50), d)
+                game.move(self, 'up', int(abs(disty)/50), d)
+            elif 0 >= distx > disty and 0 >= disty:
+                d = randint(8, 10) * int(abs(disty) / 50) / 80
+                game.move(self, 'right', int(abs(distx)/50), d)
+                game.move(self, 'up', int(abs(distx)/50), d)
+            # direita baixo
+            elif disty >= 0 >= distx and int(abs(distx)) >= int(abs(disty)):
+                d = randint(8, 10)*int(abs(disty)/50)/80
+                game.move(self, 'right', int(abs(disty)/50), d)
+                game.move(self, 'down', int(abs(disty)/50), d)
+            elif disty >= 0 >= distx and int(abs(distx)) < int(abs(disty)):
+                d = randint(8, 10)*int(abs(disty)/50)/80
+                game.move(self, 'right', int(abs(distx)/50), d)
+                game.move(self, 'down', int(abs(distx)/50), d)
+
+
+        elif bishop == 2:
+            # esquerda baixo
+            if 0 <= disty <= distx and distx >= 0:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'left', int(abs(disty)/50), d*2)
+                game.move(self, 'down', int(abs(disty)/50), d*2)
+            elif disty >= 0 and 0 <= distx <= disty:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'left', int(abs(distx)/50), d*2)
+                game.move(self, 'down', int(abs(distx)/50), d*2)
+            # esquerda cima
+            elif disty <= 0 <= distx and int(abs(distx)) >= int(abs(disty)):
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'left', int(abs(disty)/50), d*2)
+                game.move(self, 'up', int(abs(disty)/50), d*2)
+            elif disty <= 0 <= distx and int(abs(distx)) < int(abs(disty)):
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'left', int(abs(distx)/50), d*2)
+                game.move(self, 'up', int(abs(distx)/50), d*2)
+            # direita cima
+            elif distx <= 0 and 0 >= disty >= distx:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'right', int(abs(disty)/50), d*2)
+                game.move(self, 'up', int(abs(disty)/50), d*2)
+            elif 0 >= distx > disty and 0 >= disty:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'right', int(abs(distx)/50), d*2)
+                game.move(self, 'up', int(abs(distx)/50), d*2)
+            # direita baixo
+            elif disty >= 0 >= distx and int(abs(distx)) >= int(abs(disty)):
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'right', int(abs(disty)/50), d*2)
+                game.move(self, 'down', int(abs(disty)/50), d*2)
+            elif disty >= 0 >= distx and int(abs(distx)) < int(abs(disty)):
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'right', int(abs(distx)/50), d*2)
+                game.move(self, 'down', int(abs(distx)/50), d*2)
+    pass
+
+class Rook(Image):
+    def move(self, rook=1):
+        game = self.parent.children[-1]
+        jogador = self.parent.ids.player
+        distx = self.center_x - jogador.center_x
+        disty = self.center_y - jogador.center_y
+        if rook == 1:
+            if abs(distx) >= abs(disty) and distx > 0:
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'left', int(abs(distx)/50), d)
+            elif abs(distx) >= abs(disty) and distx < 0:
+                d = randint(8, 10) * int(abs(distx) / 50) / 80
+                game.move(self, 'right', int(abs(distx)/50), d)
+            elif abs(distx) < abs(disty) and disty > 0:
+                d = randint(8, 10) * int(abs(disty) / 50) / 80
+                game.move(self, 'down', int(abs(disty)/50), d)
+            elif abs(distx) < abs(disty) and disty < 0:
+                d = randint(8, 10)*int(abs(disty)/50)/80
+                game.move(self, 'up', int(abs(disty)/50), d)
+
+        elif rook == 2:
+            if abs(distx) >= abs(disty) and distx > 0:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'left', int(abs(distx)/50), d*2)
+            elif abs(distx) >= abs(disty) and distx < 0:
+                d = int(abs(distx) / 50) / 8
+                game.move(self, 'right', int(abs(distx)/50), d*2)
+            elif abs(distx) < abs(disty) and disty > 0:
+                d = int(abs(disty) / 50) / 8
+                game.move(self, 'down', int(abs(disty)/50), d*2)
+            elif abs(distx) < abs(disty) and disty < 0:
+                d = int(abs(disty)/50)/ 8
+                game.move(self, 'up', int(abs(disty)/50), d*2)
+
+class Knight(Image):
+    source = 'cavalo.png'
+    def move(self, knight=1):
+        game = self.parent.children[-1]
+        w = game.width*1/6
+        move = choice(self.valid_moves())
+        if move == 1:
+            self.x = self.x + w
+            self.y = self.y + w*2
+        if move == 2:
+            self.x = self.x + w*2
+            self.y = self.y + w
+        if move == 3:
+            self.x = self.x + w*2
+            self.y = self.y - w
+        if move == 4:
+            self.x = self.x + w
+            self.y = self.y - w*2
+        if move == 5:
+            self.x = self.x - w
+            self.y = self.y - w*2
+        if move == 6:
+            self.x = self.x - w*2
+            self.y = self.y - w
+        if move == 7:
+            self.x = self.x - w*2
+            self.y = self.y + w
+        if move == 8:
+            self.x = self.x - w
+            self.y = self.y + w*2
+
+    def valid_moves(self):
+        game = self.parent.children[-1]
+        h = game.height/2
+        w = game.width*1/6
+        self.val_moves = []
+        ymax = h + 3*w
+        ymin = h - 3*w
+        xmax = 5*w
+        xmin = 0
+        if self.y + 2*w <= ymax and self.x + w <= xmax:
+            self.val_moves.append(1)
+        if self.x + 2*w <= xmax and self.y + w <= ymax:
+            self.val_moves.append(2)
+        if self.x + 2*w <= xmax and self.y - w >= ymin:
+            self.val_moves.append(3)
+        if self.y - 2*w >= ymin and self.x + w <= xmax:
+            self.val_moves.append(4)
+        if self.y - 2*w >= ymin and self.x - w >= xmin:
+            self.val_moves.append(5)
+        if self.x - 2*w >= xmin and self.y - w >= ymin:
+            self.val_moves.append(6)
+        if self.x - 2*w >= xmin and self.y + w <= ymax:
+            self.val_moves.append(7)
+        if self.y + 2*w <= ymax and self.x - w >= xmin:
+            self.val_moves.append(8)
+
+        return self.val_moves
+
+
+
+    pass
+
+
+
+sm.add_widget(Botao2(name='botao2'))
+sm.add_widget(Chess(name='chess'))
+sm.add_widget(Botao(name='botao'))
+sm.add_widget(JogoPong(name='pong'))
 # sm.add_widget(Game(name='game'))
 # sm.add_widget(GameOver(name='go'))
 
