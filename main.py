@@ -36,6 +36,7 @@ Builder.load_file("my.kv")
 
 ultimo_score = 0
 score_pong = ""
+score_chess = ""
 
 
 #
@@ -201,11 +202,13 @@ class Player(Image):
             sm.current = 'botao'
 
     def die_chess(self, ball):
+        global score_chess
+        score_chess = str(self.parent.score)
         if self.pos == ball.pos:
-            print('perdeu')
             if int(self.parent.ids.Lhighscore.text[11:]) < self.parent.score:
                 self.parent.ids.Lhighscore.text = 'Highscore: ' + str(self.parent.score)
             self.parent.score = 0
+            sm.current = 'botao2'
 
 
 
@@ -262,7 +265,6 @@ class PongGame(Widget):
         bola.center = self.center
         bola.velocity = (0, randint(30, 50) * tamanhotela / 6340)
         if n_bolas == 1:
-            print(tamanhotela)
             self.add_widget(self.ball)
             self.ball.velocity = (0, randint(30, 50) * tamanhotela / 6340)
 
@@ -370,7 +372,14 @@ class Botao(Screen):
         if score_pong:
             self.ids.pongpont.text = "Pontuação:"
             self.ids.play.text = "Play again"
+        else:
+            self.ids.pongpont.text = self.inicial
+            self.ids.play.text = "Start game"
         self.ids.score.text = score_pong
+
+    def on_leave(self, *args):
+        global score_pong
+        score_pong = ''
     def playar(self):
         global tamanhotela, larguratela
         tamanhotela = self.height
@@ -378,6 +387,26 @@ class Botao(Screen):
         sm.current = 'pong'
 
 class Botao2(Screen):
+    inicial = "Faça 60 pontos\npara desbloquear\no próximo nível"
+
+    def on_pre_enter(self, *args):
+        if score_chess:
+            self.ids.pongpont.text = "Pontuação:"
+            self.ids.play.text = "Play again"
+        else:
+            self.ids.pongpont.text = self.inicial
+            self.ids.play.text = "Start game"
+        self.ids.score.text = score_chess
+
+    def on_leave(self, *args):
+        global score_chess
+        score_chess = ''
+
+    def playar(self):
+        global tamanhotela, larguratela
+        tamanhotela = self.height
+        larguratela = self.width
+        sm.current = 'chess'
     pass
 
 class Chess(Screen):
@@ -418,14 +447,46 @@ class Chess(Screen):
         self.ids.knight2.pos = game.casas['e8']
         self.ids.Lscore.y = h + 4*w
         self.ids.Lhighscore.top = h -5 * w
+        game.i = 0
+        game.i1 = 0
+        game.i2 = 0
+        game.slow = 1
+        game.k1 = 120
+        game.k2 = 240
+
+    @staticmethod
+    def cancel_all(widget, *largs):
+        if len(largs):
+            for animation in list(Animation._instances):
+                for x in largs:
+                    animation.cancel_property(widget, x)
+        else:
+            for animation in set(Animation._instances):
+                animation.cancel(widget)
+    def on_leave(self, *args):
+        game = self.children[-1]
+        Clock.unschedule(game.update)
+        self.cancel_all(self.ids.rook1)
+        self.cancel_all(self.ids.rook2)
+        self.cancel_all(self.ids.bishop1)
+        self.cancel_all(self.ids.bishop2)
+        self.cancel_all(self.ids.knight1)
+        self.cancel_all(self.ids.knight2)
+        self.ids.player.pos = game.casas['c1']
+        self.ids.rook1.pos = game.casas['a8']
+        self.ids.rook2.pos = game.casas['f8']
+        self.ids.bishop1.pos = game.casas['c8']
+        self.ids.bishop2.pos = game.casas['d8']
+        self.ids.knight1.pos = game.casas['b8']
+        self.ids.knight2.pos = game.casas['e8']
+        game.i = 0
+        game.i1 = 0
+        game.i2 = 0
+        game.slow = 1
+        game.k1 = 120
+        game.k2 = 240
 
 class ChessGame(Widget):
-    i = 0
-    i1 = 0
-    i2 = 0
-    slow = 1
-    k1 = 120
-    k2 = 240
     def update(self, dt):
         self.jogador.die_chess(self.r1)
         self.jogador.die_chess(self.r2)
