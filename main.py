@@ -20,7 +20,6 @@ from kivy.properties import (
 )
 from kivy.vector import Vector
 from kivy.clock import Clock
-from math import sqrt
 
 Config.set('graphics', 'width', '300')
 Config.set('graphics', 'height', '634')
@@ -204,11 +203,12 @@ class Player(Image):
     def die_chess(self, ball):
         global score_chess
         score_chess = str(self.parent.score)
-        if self.pos == ball.pos:
+        if round(self.x) == round(ball.x) and round(self.y) == round(ball.y):
             if int(self.parent.ids.Lhighscore.text[11:]) < self.parent.score:
                 self.parent.ids.Lhighscore.text = 'Highscore: ' + str(self.parent.score)
             self.parent.score = 0
             sm.current = 'botao2'
+
 
 
 
@@ -560,82 +560,83 @@ class Bishop(Image):
         jogador = self.parent.ids.player
         distx = self.center_x - jogador.center_x
         disty = self.center_y - jogador.center_y
+        w = int(game.width/6)
         if bishop == 1:
             # esquerda baixo
             if 0 <= disty <= distx and distx >= 0:
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'left', int(abs(disty)/50), d)
-                game.move(self, 'down', int(abs(disty) / 50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'left', int(abs(disty)/w), d)
+                game.move(self, 'down', int(abs(disty) / w), d)
             elif disty >= 0 and 0 <= distx <= disty:
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'left', int(abs(distx)/50), d)
-                game.move(self, 'down', int(abs(distx) / 50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'left', int(abs(distx)/w), d)
+                game.move(self, 'down', int(abs(distx) / w), d)
             # esquerda cima
             elif disty <= 0 <= distx and int(abs(distx)) >= int(abs(disty)):
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'left', int(abs(disty)/50), d)
-                game.move(self, 'up', int(abs(disty)/50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'left', int(abs(disty)/w), d)
+                game.move(self, 'up', int(abs(disty)/w), d)
             elif disty <= 0 <= distx and int(abs(distx)) < int(abs(disty)):
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'left', int(abs(distx)/50), d)
-                game.move(self, 'up', int(abs(distx)/50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'left', int(abs(distx)/w), d)
+                game.move(self, 'up', int(abs(distx)/w), d)
             # direita cima
             elif distx <= 0 and 0 >= disty >= distx:
-                d = randint(8, 10) * int(abs(disty) / 50) / 80
-                game.move(self, 'right', int(abs(disty)/50), d)
-                game.move(self, 'up', int(abs(disty)/50), d)
+                d = randint(8, 10) * int(abs(disty) / w) / 80
+                game.move(self, 'right', int(abs(disty)/w), d)
+                game.move(self, 'up', int(abs(disty)/w), d)
             elif 0 >= distx > disty and 0 >= disty:
-                d = randint(8, 10) * int(abs(disty) / 50) / 80
-                game.move(self, 'right', int(abs(distx)/50), d)
-                game.move(self, 'up', int(abs(distx)/50), d)
+                d = randint(8, 10) * int(abs(disty) / w) / 80
+                game.move(self, 'right', int(abs(distx)/w), d)
+                game.move(self, 'up', int(abs(distx)/w), d)
             # direita baixo
             elif disty >= 0 >= distx and int(abs(distx)) >= int(abs(disty)):
-                d = randint(8, 10)*int(abs(disty)/50)/80
-                game.move(self, 'right', int(abs(disty)/50), d)
-                game.move(self, 'down', int(abs(disty)/50), d)
+                d = randint(8, 10)*int(abs(disty)/w)/80
+                game.move(self, 'right', int(abs(disty)/w), d)
+                game.move(self, 'down', int(abs(disty)/w), d)
             elif disty >= 0 >= distx and int(abs(distx)) < int(abs(disty)):
-                d = randint(8, 10)*int(abs(disty)/50)/80
-                game.move(self, 'right', int(abs(distx)/50), d)
-                game.move(self, 'down', int(abs(distx)/50), d)
+                d = randint(8, 10)*int(abs(disty)/w)/80
+                game.move(self, 'right', int(abs(distx)/w), d)
+                game.move(self, 'down', int(abs(distx)/w), d)
 
 
         elif bishop == 2:
             # esquerda baixo
             if 0 <= disty <= distx and distx >= 0:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'left', int(abs(disty)/50), d*2)
-                game.move(self, 'down', int(abs(disty)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'left', int(abs(disty)/w), d*2)
+                game.move(self, 'down', int(abs(disty)/w), d*2)
             elif disty >= 0 and 0 <= distx <= disty:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'left', int(abs(distx)/50), d*2)
-                game.move(self, 'down', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'left', int(abs(distx)/w), d*2)
+                game.move(self, 'down', int(abs(distx)/w), d*2)
             # esquerda cima
             elif disty <= 0 <= distx and int(abs(distx)) >= int(abs(disty)):
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'left', int(abs(disty)/50), d*2)
-                game.move(self, 'up', int(abs(disty)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'left', int(abs(disty)/w), d*2)
+                game.move(self, 'up', int(abs(disty)/w), d*2)
             elif disty <= 0 <= distx and int(abs(distx)) < int(abs(disty)):
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'left', int(abs(distx)/50), d*2)
-                game.move(self, 'up', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'left', int(abs(distx)/w), d*2)
+                game.move(self, 'up', int(abs(distx)/w), d*2)
             # direita cima
             elif distx <= 0 and 0 >= disty >= distx:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'right', int(abs(disty)/50), d*2)
-                game.move(self, 'up', int(abs(disty)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'right', int(abs(disty)/w), d*2)
+                game.move(self, 'up', int(abs(disty)/w), d*2)
             elif 0 >= distx > disty and 0 >= disty:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'right', int(abs(distx)/50), d*2)
-                game.move(self, 'up', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'right', int(abs(distx)/w), d*2)
+                game.move(self, 'up', int(abs(distx)/w), d*2)
             # direita baixo
             elif disty >= 0 >= distx and int(abs(distx)) >= int(abs(disty)):
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'right', int(abs(disty)/50), d*2)
-                game.move(self, 'down', int(abs(disty)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'right', int(abs(disty)/w), d*2)
+                game.move(self, 'down', int(abs(disty)/w), d*2)
             elif disty >= 0 >= distx and int(abs(distx)) < int(abs(disty)):
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'right', int(abs(distx)/50), d*2)
-                game.move(self, 'down', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'right', int(abs(distx)/w), d*2)
+                game.move(self, 'down', int(abs(distx)/w), d*2)
     pass
 
 class Rook(Image):
@@ -644,33 +645,35 @@ class Rook(Image):
         jogador = self.parent.ids.player
         distx = self.center_x - jogador.center_x
         disty = self.center_y - jogador.center_y
+        w = int(game.width/6)
         if rook == 1:
             if abs(distx) >= abs(disty) and distx > 0:
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'left', int(abs(distx)/50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'left', int(abs(distx)/w), d)
             elif abs(distx) >= abs(disty) and distx < 0:
-                d = randint(8, 10) * int(abs(distx) / 50) / 80
-                game.move(self, 'right', int(abs(distx)/50), d)
+                d = randint(8, 10) * int(abs(distx) / w) / 80
+                game.move(self, 'right', int(abs(distx)/w), d)
+                print(int(abs(distx)), w, int(abs(distx) / w))
             elif abs(distx) < abs(disty) and disty > 0:
-                d = randint(8, 10) * int(abs(disty) / 50) / 80
-                game.move(self, 'down', int(abs(disty)/50), d)
+                d = randint(8, 10) * int(abs(disty) / w) / 80
+                game.move(self, 'down', int(abs(disty)/w), d)
             elif abs(distx) < abs(disty) and disty < 0:
-                d = randint(8, 10)*int(abs(disty)/50)/80
-                game.move(self, 'up', int(abs(disty)/50), d)
+                d = randint(8, 10)*int(abs(disty)/w)/80
+                game.move(self, 'up', int(abs(disty)/w), d)
 
         elif rook == 2:
             if abs(distx) >= abs(disty) and distx > 0:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'left', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'left', int(abs(distx)/w), d*2)
             elif abs(distx) >= abs(disty) and distx < 0:
-                d = int(abs(distx) / 50) / 8
-                game.move(self, 'right', int(abs(distx)/50), d*2)
+                d = int(abs(distx) / w) / 8
+                game.move(self, 'right', int(abs(distx)/w), d*2)
             elif abs(distx) < abs(disty) and disty > 0:
-                d = int(abs(disty) / 50) / 8
-                game.move(self, 'down', int(abs(disty)/50), d*2)
+                d = int(abs(disty) / w) / 8
+                game.move(self, 'down', int(abs(disty)/w), d*2)
             elif abs(distx) < abs(disty) and disty < 0:
-                d = int(abs(disty)/50)/ 8
-                game.move(self, 'up', int(abs(disty)/50), d*2)
+                d = int(abs(disty)/w)/ 8
+                game.move(self, 'up', int(abs(disty)/w), d*2)
 
 class Knight(Image):
     source = 'cavalo.png'
